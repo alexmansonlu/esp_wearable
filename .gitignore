@@ -1,0 +1,22 @@
+# PlatformIO / firmware
+firmware/.pio/
+firmware/.vscode/
+firmware/data/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Unity（项目建立后生效）
+unity/*/Library/
+unity/*/Temp/
+unity/*/Logs/
+unity/*/obj/
+unity/*/UserSettings/
+Recordings/
+
+# 系统杂项
+Thumbs.db
+.DS_Store
+~$*.docx
