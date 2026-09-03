@@ -12,8 +12,14 @@ import argparse
 import pathlib
 import sys
 
+if hasattr(sys.stdout, "reconfigure"):  # Windows 控制台默认编码可能打不出中文
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
 import pandas as pd
 import matplotlib.pyplot as plt
+
+plt.rcParams["font.sans-serif"] = ["Microsoft YaHei", "SimHei", "sans-serif"]
+plt.rcParams["axes.unicode_minus"] = False
 
 
 def load_csv(path: pathlib.Path) -> pd.DataFrame:

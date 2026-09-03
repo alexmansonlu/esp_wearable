@@ -26,6 +26,9 @@ import sys
 import threading
 import time
 
+if hasattr(sys.stdout, "reconfigure"):  # Windows 控制台默认编码可能打不出中文
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
 try:
     import serial  # pyserial
 except ImportError:
