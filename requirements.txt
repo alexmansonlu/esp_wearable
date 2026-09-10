@@ -1,0 +1,7 @@
+# 固件电脑端工具（firmware/tools）与 experiment/ 采集分析脚本的依赖
+# 安装：python3 -m venv venv && source venv/bin/activate && pip install -r requirements.txt
+# （unity/tools/chartgen.py 的 librosa 等另见 unity/tools/requirements.txt）
+pyserial>=3.5
+numpy>=1.26
+pandas>=2.0
+matplotlib>=3.8

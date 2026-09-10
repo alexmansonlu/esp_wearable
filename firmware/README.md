@@ -24,13 +24,12 @@
    ```
 5. 上机自检与实时看图（先关闭 Serial Monitor 释放串口；macOS 串口名形如 `/dev/cu.usbserial-1210`）：
    ```bash
-   pip install pyserial matplotlib numpy
+   pip install -r ../requirements.txt     # 建议先在仓库根目录建 venv，见 experiment/README.md
    python tools/sensor_check.py --port COM5            # 15 秒后给出每个传感器 ✅/❌ 判定
    python tools/live_dashboard.py --port COM5          # 实时波形与趋势窗口；--snapshot x.png 可无窗口存图
    ```
-6. 记录数据集（另开终端，关闭 Serial Monitor 以释放串口）：
+6. 记录数据集（另开终端，关闭 Serial Monitor 以释放串口）。**正式采集请用 `experiment/data_gathering/record.py`**（它调用本脚本，固定输出到 experiment/ 并自动打标签，见 experiment/README.md）；直接用本脚本仅供调试：
    ```bash
-   pip install pyserial pandas matplotlib
    python tools/serial_logger.py --port COM5 --calibrate --raw --tag P01
    # 静坐30秒完成校准 → 正常活动/游玩 → Ctrl+C 结束
    python tools/plot_session.py data/session_XXXX_P01

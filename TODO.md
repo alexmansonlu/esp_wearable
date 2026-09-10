@@ -13,7 +13,7 @@
 - [ ] T0-01 (0.2h) 安装 VSCode + PlatformIO 扩展；建立 `firmware/` 项目（board: `esp32dev`, framework: `arduino`）
 - [ ] T0-02 (0.1h) 安装 USB 驱动（CH340 或 CP210x，视板子而定），确认设备管理器出现 COM 口
 - [ ] T0-03 (0.2h) 建立 Unity 项目 `unity/BioRhythmGame`（建议 2022 LTS），Player Settings → Api Compatibility Level 改为 **.NET Framework**
-- [ ] T0-04 (0.2h) 建立 `analysis/` Python 环境：`python -m venv .venv`、`requirements.txt`（pandas, numpy, matplotlib, scikit-learn, jupyter, pyserial）
+- [ ] T0-04 (0.2h) 建立 `experiment/analysis/` Python 环境（目录与脚本已就绪，见 experiment/README.md）：`python -m venv .venv`、`requirements.txt`（pandas, numpy, matplotlib, scikit-learn, jupyter, pyserial）
 - [ ] T0-05 (0.2h) 项目根目录 `git init`、编写 `.gitignore`（Unity Library/、Recordings/、.venv/、.pio/）
 
 ### 0.2 硬件验收
@@ -113,7 +113,7 @@
 - [ ] T6-04 (0.4h) `visualize.py` 标准四联图：(1) HR 曲线 + 状态色带 (2) GSR 曲线 + 斜率 (3) 难度三参数阶梯图 (4) accuracy/miss 滑动曲线 + 判定散点；输出 PNG 到 `outputs/figures/`
 - [ ] T6-05 (0.2h) `batch_process.py`：CLI 一键处理 `data/raw/` 下所有 session
 - [ ] T6-06 (0.4h) （可选）`classify.py`：以主观标签为 y、生理+表现滑动特征为 X，比较 KNN / RandomForest / LogisticRegression，**GroupKFold（按受试者分组）** 交叉验证，输出混淆矩阵
-- [ ] T6-07 (0.0h) 🔑 **验收**：完整跑一场 → 复制 session 文件夹到 `analysis/data/raw/` → 一个指令产出四联图
+- [ ] T6-07 (0.0h) 🔑 **验收**：完整跑一场 → session 文件夹落在 `experiment/data_gathering/sessions/` → 一个指令产出四联图到 `experiment/results/`
 
 ---
 

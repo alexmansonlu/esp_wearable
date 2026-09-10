@@ -29,8 +29,9 @@
    - 官方文档：https://developers.openai.com/codex/ide
    - 它和 ChatGPT 网页版的区别：它能**看到你打开的项目文件夹里的所有文件、能改文件、能帮你跑命令**。本项目根目录有一份给它看的说明书（`AGENTS.md` → `CLAUDE.md`），它一打开项目就知道全部背景
    - 老师自己用的是 Claude Code，两者用法一样，课上的提示词你直接照用
-3. **验收标准**（L1 现场做）：git clone 本项目后在 VSCode 打开 → 对 AI 说"请读一下这个项目的 CLAUDE.md，用三句话告诉我这个项目在做什么"→ 它答对了，装机完成 ✅
-4. **L1 的开箱练习**：老师**只给你仓库地址**，不讲课——你要靠问 AI 搞懂这个仓库是什么、GSR 接哪个脚、ESP32 发来的数据长什么样，并让 AI 帮你跑第一个脚本、做第一次提交。这是你第一次真正的 vibe coding，提前把 §3 的五个基本功看熟
+3. **Python 3**：Mac 到 https://www.python.org/downloads/ 装 3.12（Windows 安装时勾 Add to PATH）。clone 仓库后按 experiment/README.md「Python 环境」一节建 `venv` 装依赖（可以让 AI 照着做）
+4. **验收标准**（L1 现场做）：git clone 本项目后在 VSCode 打开 → 对 AI 说"请读一下这个项目的 CLAUDE.md，用三句话告诉我这个项目在做什么"→ 它答对了，装机完成 ✅
+5. **L1 的开箱练习**：老师**只给你仓库地址**，不讲课——你要靠问 AI 搞懂这个仓库是什么、GSR 接哪个脚、ESP32 发来的数据长什么样，并让 AI 帮你跑第一个脚本、做第一次提交。这是你第一次真正的 vibe coding，提前把 §3 的五个基本功看熟
 
 ## 3. 五个基本功（每次对话都用得上）
 

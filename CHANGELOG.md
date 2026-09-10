@@ -2,6 +2,24 @@
 
 本项目版本记录。格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/)。
 
+## [0.0.4] - 2026-09-10 — L1 改版（提案定案 + 采集分析闭环）与 experiment/ 目录
+
+### 新增
+- `experiment/`：数据采集与分析的固定结构（`README.md` 定义结构、流程、命名规范；三条规矩：data_gathering 只增不改 / analysis 只写 results / results 可删可重跑）
+  - `data_gathering/record.py`：采一场 = 调 serial_logger 记录到 `sessions/` → 自动校准 → Ctrl+C → 终端问标签写入 `sessions.csv`（游戏 / 关卡难度 / BPM / 最终分数 / 明显失误 / 漏拍 / 主观紧张 / 备注）；空场自动清理
+  - `analysis/common.py`：读取 / 路径 / 画图设置（跨平台中文字体、固定系列颜色）；`01_session_summary.py`：每场一行特征 + 三联总览图；`02_tag_correlation.py`：特征 × 标签 Spearman 相关（热图 + 最强 4 对散点，N<8 提示只当线索）
+  - `analysis/prompts.md`：学生让 AI 分析用的提示词 P0–P5（读懂数据 → 单场看图 → 相关性 → 按规范写新脚本 → 质疑替代解释 → 出题自测）与报告格式
+  - `results/{summary,plots,correlation,reports}/`；`sessions/*/raw.csv` 不入库
+- 根目录 `requirements.txt`（pyserial / numpy / pandas / matplotlib，覆盖 firmware/tools 与 experiment/）；experiment/README.md 增加 Mac / Windows 建 `venv` 的完整命令；`venv/` 入 .gitignore
+- 两个脚本已用 5 场合成数据端到端验证
+
+### 变更
+- `lessons/L1_硬件课.md` 改版为新时间表：0:00–0:20 游戏提案定案（G1–G5 空表现场填结论）+ Demo A–E 开发时程空表（现场填，L2 9/17、L3 9/19）→ 休息 → 0:30–0:40 vibe coding 自行探索（clone、T1/T2、首次 commit）→ 0:40–1:20 硬件走读 40 分钟，她开着 WIRING.md 当参照**自己接线**（固件教师预烧，PlatformIO 改作业）→ 1:20–1:30 sensor_check 自检每样接没接好 → 讲清 calibrate 做什么（30 秒基线、gsr_delta/hr_delta 公式、quality bit2、规矩与"偷偷心算"追问）→ live_dashboard → record.py 采一场 → 休息 → 1:40–2:00 收尾：下次课 Unity（课前装好）+ 作业（玩情绪起伏大的游戏采 ≥6 场 + rest 对照、打标签、让 AI 找相关性、写报告、git 交付）
+- `CLAUDE.md`、`.claude/memory/teaching-plan.md`：登记 experiment/ 与新 L1 结构；`firmware/README.md` 指向 experiment/；`TODO.md` 分析目录路径改为 experiment/analysis
+
+### 说明
+- L2–L8 主题将按 L1 定下的开发时程改版 SCHEDULE.md（待 0.0.5）
+
 ## [0.0.3] - 2026-09-10 — 硬件实物核对、上机工具与 L1 课程材料
 
 ### 新增

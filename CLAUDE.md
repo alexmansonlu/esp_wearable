@@ -18,8 +18,9 @@ ESP32 读取玩家心率/HRV + 皮肤电（GSR），实时传给 Unity 4 轨节�
 | [TODO.md](TODO.md) | P0–P6 开发任务清单（含验收关卡 🔑） |
 | [SCHEDULE.md](SCHEDULE.md) | 授课日历（注意：仍是繁体+旧版硬件描述，客户版 PDF 已发） |
 | [firmware/](firmware/) | **已实现的数据采集固件 v0.2.0**（PlatformIO），含 README 和串口协议 |
+| [experiment/](experiment/) | 数据采集与分析（L1 起）：`data_gathering/record.py` 采一场并打标签 → `sessions/` + `sessions.csv`；`analysis/` 01 每场汇总 + 02 特征×标签相关，`prompts.md` 学生用 AI 分析的提示词；`results/` 按类别与命名规范存产物。**结构与命名规范不改**，README 有三条规矩 |
 | [unity/](unity/) | Unity 端：SETUP.md（建工程步骤+协作流程）、GAME_DESIGN.md（游戏设计基准，🗣️标记待客户定案项）、tools/chartgen.py（音乐→节拍→谱面JSON，已验证可用） |
-| [lessons/](lessons/) | 每堂课的材料。L0_导论课.md = 首课会议指南：五阶段项目框架（目标→硬件管线→实验→模型验证→游戏整合，研究轨与构建轨并行）、决策清单 D1–D5（当场定）、§5 游戏设计开放问题 G1–G5（参考游戏/最小机制/按键数/情绪→难度杠杆/奖励与正向反馈，**只讨论不定案**，学生带提案到 L1）与决策记录表。S2-S5_决策清单.md = S2–S5 全部待定决策（教师内部 + Nick 对齐用，每项标"先由谁谈"，**不直接发学生**；§0 是发 Nick 的对齐摘要）。L1_硬件课.md = L1 线下课主持脚本：环境安装 → vibe coding 测试（clone + 三个探索任务 + 首次 commit）→ 六样硬件逐件走读（机制 / 信号到 ESP32 / 固件读取与预处理 / 用处 / AI 看代码，逐行对应 firmware 源码）→ 烧录自检 → 提案反馈。**开完会要把决策记录回填进相关文档** |
+| [lessons/](lessons/) | 每堂课的材料。L0_导论课.md = 首课会议指南：五阶段项目框架（目标→硬件管线→实验→模型验证→游戏整合，研究轨与构建轨并行）、决策清单 D1–D5（当场定）、§5 游戏设计开放问题 G1–G5（参考游戏/最小机制/按键数/情绪→难度杠杆/奖励与正向反馈，**只讨论不定案**，学生带提案到 L1）与决策记录表。S2-S5_决策清单.md = S2–S5 全部待定决策（教师内部 + Nick 对齐用，每项标"先由谁谈"，**不直接发学生**；§0 是发 Nick 的对齐摘要）。L1_硬件课.md = L1 线下课主持脚本（2026-09-10 改版）：0:00–0:20 游戏提案定案 G1–G5 + Demo A–E 开发时程现场填表 → vibe coding 自行探索（clone + T1/T2 + 首次 commit）→ 硬件走读 40 分钟，她开着 WIRING.md 当参照自己接线（固件教师预烧）→ 讲 calibrate 做什么 → live_dashboard → record.py 采一场 → 收尾：下次课 Unity + 作业（玩游戏采数据打标签、让 AI 找相关性）。**开完会要把决策记录回填进相关文档** |
 
 ## 硬件定稿（v0.4，2026-09 确定，勿再用旧方案）
 
@@ -49,7 +50,7 @@ ESP32 读取玩家心率/HRV + 皮肤电（GSR），实时传给 Unity 4 轨节�
 - **代码答辩制度**：每课后作业以 git commit 交付 → 技术教师人工 code review + 当面提问 → 答不出"这段在干嘛"就回炉。学生靠与 AI 紧密沟通准备答辩（逐段讲解→AI出预测考题→自答→AI批改）
 - 学生手册：[lessons/vibe_coding_入门.md](lessons/vibe_coding_入门.md)（装机、提问基本功、git、答辩四步法、硬件学习提示词模板）
 - L0 作业核心（**纯 AI 助手作业，不写代码不碰 git**，交付发文件）：用 AI 学懂 HARDWARE.md 全部 6 样硬件并写自己话笔记 + G1–G5 游戏设计提案；L1 开场快问快答 + 收尾提案反馈
-- L1 线下才开始 vibe coding 本体：她 git clone 本仓库，**只给 README/md 文档不讲课**，用 AI 读懂仓库、跑 firmware/tools/serial_logger.py、做第一次 commit；L1 作业 = 第一个测试脚本（串口读 10 秒/画曲线/深呼吸检测三选一），L2 开头第一次代码答辩
+- L1 线下才开始 vibe coding 本体：她 git clone 本仓库，**只给 README/md 文档不讲课**，用 AI 读懂仓库、做第一次 commit；课上跑通 校准 → live_dashboard → experiment/data_gathering/record.py 采一场；L1 作业 = 玩情绪起伏大的游戏采 ≥6 场 + rest 对照、打标签、用 experiment/analysis 两个脚本 + prompts.md 让 AI 找相关性、写报告、git 交付；L2（9/17）开头第一次代码答辩，L2 起做 Unity Demo A（课前装好 Unity）
 - **给学生写材料时**：假设零基础、多用比喻、给可直接复制的提示词模板
 
 ## 语言与沟通约定
@@ -62,6 +63,8 @@ ESP32 读取玩家心率/HRV + 皮肤电（GSR），实时传给 Unity 4 轨节�
 
 - ✅ 架构/硬件/排程文档齐全；固件 v0.2.0 已写完（**未上机验证**）
 - ✅ unity/ 目录就绪：建工程指南、游戏设计文档（导论课用）、谱面生成器 chartgen.py（已端到端验证）
+- ✅ experiment/ 就绪：record.py + 01/02 分析脚本（合成数据验证过，未接真机）
+- ⏭️ L1（9/11）后：把 G1–G5 定案与 Demo A–E 时程回填 GAME_DESIGN.md §3/§6 与 TODO.md P3；按时程改版 SCHEDULE.md（简体化）并重发客户版 PDF
 - ⏭️ 下一步：① 硬件到手后跑 HARDWARE.md 第 10 节自检清单（重点第 8 项心率融合切换、第 9 项双路 RMSSD 一致性）；② 用户按 unity/SETUP.md 建 Unity 工程后即可开始写 C# 脚本（Unity 工程未建立不阻塞脚本编写）；③ 导论课用 GAME_DESIGN.md 第 6 节讨论清单与客户定案
 - 待确认事项见 ARCHITECTURE.md §7.3（传输选型正式定案、阈值 pilot 校正、佩戴位置等）
 

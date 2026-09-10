@@ -32,3 +32,8 @@ docs/datasheets/esp32_wroom32_ch340/extracted/03-开发工具/
 docs/*.md
 docs/datasheets/**/*.apk
 docs/datasheets/esp32_wroom32_ch340/extracted/04-ESP32芯片相关资料/ESP32 AT指令集.pdf
+
+# experiment：100Hz 波形太大不入库；bio/beats/标签/结果全部入库
+experiment/data_gathering/sessions/*/raw.csv
+
+venv/
