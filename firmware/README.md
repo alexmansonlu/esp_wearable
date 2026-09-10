@@ -6,7 +6,7 @@
 
 ## 功能
 
-- 同时读取：PulseSensor（PPG 波形）、AD8232（ECG 波形）、Grove GSR、MPU6050 加速度、裸 MAX30100（选配）
+- 同时读取：PulseSensor（PPG 波形）、AD8232（ECG 波形）、思知瑞 GSR 皮肤电、MPU6050 加速度、裸 MAX30100（选配）
 - 板上实时处理：PPG/ECG 自适应阈值心跳检测 → 逐跳 IBI → BPM 与 RMSSD（HRV）；GSR 平滑与 15 秒斜率
 - **统一心率 `hr`**：按 ECG > PPG > MAX30100 优先级自动融合（逐跳更新，无 4 秒延迟）
 - 10Hz NDJSON 特征流 + 逐跳 beat 事件 + 可开关的 100Hz 原始波形流
@@ -22,7 +22,13 @@
    {"type":"boot","fw":"0.2.0","mpu6050":1,"max30100":0,"gsr":1,"pulse":1,"ecg":1}
    {"type":"bio","seq":0,"t":1234,"hr":-1.0,...}
    ```
-5. 记录数据集（另开终端，关闭 Serial Monitor 以释放串口）：
+5. 上机自检与实时看图（先关闭 Serial Monitor 释放串口；macOS 串口名形如 `/dev/cu.usbserial-1210`）：
+   ```bash
+   pip install pyserial matplotlib numpy
+   python tools/sensor_check.py --port COM5            # 15 秒后给出每个传感器 ✅/❌ 判定
+   python tools/live_dashboard.py --port COM5          # 实时波形与趋势窗口；--snapshot x.png 可无窗口存图
+   ```
+6. 记录数据集（另开终端，关闭 Serial Monitor 以释放串口）：
    ```bash
    pip install pyserial pandas matplotlib
    python tools/serial_logger.py --port COM5 --calibrate --raw --tag P01
@@ -70,6 +76,8 @@ firmware/
 │       ├── Mpu6050.h         # MPU6050 最小寄存器驱动（0x68，自动尝试 0x69）
 │       └── Max30100Wrap.h    # 裸 MAX30100 封装（选配, oxullo 库, 0x57）
 ├── tools/
+│   ├── sensor_check.py       # 上机自检：15 秒判定每个传感器在不在线（WIRING.md §5）
+│   ├── live_dashboard.py     # 实时仪表盘：三路波形 + 心率/HRV/GSR/运动趋势（c 校准 / r raw / q 退出）
 │   ├── serial_logger.py      # 数据集记录器 → session 文件夹
 │   └── plot_session.py       # 记录结果四联图 + 波形图
 └── data/                     # 记录输出（不入库）
@@ -86,7 +94,7 @@ firmware/
 | 没有 `src:"ecg"` beat 且 `lead_off:1` | 电极贴片接触不良/脱落；皮肤先用酒精棉片清洁 |
 | ECG 波形全是毛刺 | 手臂贴法下的肌电干扰：按键/用力时不可避免，改胸贴法或只在静息段用 |
 | `hr` 忽跳忽停 | 看 `hr_e`/`hr_p` 哪路在失效；游玩时 ECG 受肌电影响会掉线，此时 `hr` 自动回落到 PPG |
-| GSR 读值顶格 4095 或贴 0 | 检查是否误接 5V；板上电位器空载调到量程中点 |
+| GSR 读值顶格 4095 或贴 0 | 检查是否误接 5V；指套线是否插到底；手太湿/太干（该模块无电位器，不能调基准） |
 | MAX30100 启用后 begin 失败 | 上拉电阻问题，见 HARDWARE.md 的改装说明 |
 | `rmssd_*` 一直 -1 | 需要连续约 30 秒稳定心搏才开始输出；先确认 beat 事件流稳定 |
 | ESP32 反复重启 | USB 供电不足（换线/换口）；I2C 短路检查 |

@@ -2,7 +2,7 @@
 
 # 生理信号自适应音乐节奏游戏 — 系统架构文档
 
-> Bio-Adaptive Rhythm Game — 以 ESP32 读取心率/HRV（PulseSensor + AD8232 ECG）与皮肤电（Grove GSR），实时串流至 Unity 4 轨节奏游戏，依玩家生理状态动态调整难度，并用 Python 做赛后分析。
+> Bio-Adaptive Rhythm Game — 以 ESP32 读取心率/HRV（PulseSensor + AD8232 ECG）与皮肤电（思知瑞 GSR 模块），实时串流至 Unity 4 轨节奏游戏，依玩家生理状态动态调整难度，并用 Python 做赛后分析。
 >
 > 文档版本：v0.4
 > 适用课程：20 小时授课 + 4–6 小时课外数据采集
@@ -32,7 +32,7 @@
 |---|---|
 | 项目代号 | `ai_wearable_unity` |
 | 核心命题 | 生理状态（arousal / stress）能否作为节奏游戏难度的实时控制信号 |
-| 生理输入 | 心率/HRV（PulseSensor 主力 + AD8232 ECG 金标准 + MAX30100 选配，融合为统一 `hr`）、GSR 皮肤电导（Grove GSR）、运动（MPU6050） |
+| 生理输入 | 心率/HRV（PulseSensor 主力 + AD8232 ECG 金标准 + MAX30100 选配，融合为统一 `hr`）、GSR 皮肤电导（思知瑞 GSR 模块）、运动（MPU6050） |
 | 游戏输出 | Note Speed / Note Density / Pattern Complexity 三维难度 |
 | 状态分类 | `calm` / `focused` / `nervous` / `frustrated` / `overloaded` |
 | 交付物 | ESP32 固件、Unity 游戏、CSV 数据集、Python 分析报告 |
@@ -52,7 +52,7 @@
 flowchart TD
     subgraph L1["1. 硬件传感层 (Sensing Layer)"]
         A1["PulseSensor + AD8232<br/>PPG / ECG 波形 200Hz<br/>逐跳 IBI → HR / HRV"]
-        A2["Grove GSR<br/>皮肤电导 (指部电极)<br/>Analog to ADC1"]
+        A2["思知瑞 GSR<br/>皮肤电导 (指部电极)<br/>Analog to ADC1"]
         A3["MPU6050<br/>三轴加速度<br/>I2C addr 0x68"]
     end
 
@@ -122,7 +122,7 @@ flowchart TD
 | 1. 硬件传感层                                             |
 |   PulseSensor (Analog, GPIO35, 指尖PPG波形)               |
 |   AD8232     (Analog, GPIO32 + LO±27/14, ECG波形)         |
-|   Grove GSR  (Analog, GPIO34 / ADC1_CH6, 指部电极)        |
+|   思知瑞 GSR (Analog, GPIO34 / ADC1_CH6, 指部电极)        |
 |   MPU6050    (I2C 0x68, GPIO21/22)                        |
 +----------------------------------------------------------+
      | PPG/ECG 200Hz · GSR 50Hz · 加速度 25Hz
@@ -188,10 +188,10 @@ flowchart TD
 |---|---|---|---|---|
 | 脉搏（主力心率） | PulseSensor x1 | Analog → `GPIO35`（ADC1_CH7） | PPG 波形 → 波峰 → 逐跳 IBI → `hr_p` / `rmssd_p` | 游戏实时心率来源；指尖/耳垂佩戴，怕运动伪影 |
 | 心电（HRV 真值） | AD8232 x1 | Analog → `GPIO32` + LO± → `GPIO27/14` | ECG 波形 → R 峰 → IBI → `hr_e` / `rmssd_e` | **HRV 金标准**；3 贴片电极（耗材需补购）；游玩中受肌电干扰，主用于校准段/实验段 |
-| 皮肤电 | Grove GSR x1 | Analog → `GPIO34`（ADC1_CH6） | 皮肤电导原始电压 | 指部绑带电极；**务必用 3.3V 供电**（5V 时输出可能超 ADC 上限）；**务必接 ADC1**（ADC2 与 Wi-Fi 冲突） |
+| 皮肤电 | 思知瑞 GSR 模块 x1 | Analog → `GPIO34`（ADC1_CH6） | 皮肤电导原始电压 | 指部绑带电极；**务必用 3.3V 供电**（5V 时输出可能超 ADC 上限）；**务必接 ADC1**（ADC2 与 Wi-Fi 冲突） |
 | 运动检测 | MPU6050 x1 | I2C `SDA=GPIO21`, `SCL=GPIO22`, addr `0x68` | 三轴加速度（±2g，DLPF 44Hz） | 检测手部大动作（motion artifact）；上电默认睡眠，固件已自动唤醒 |
 | 裸 PPG（选配） | MAX30100 x1 | I2C, addr `0x57`（与 MPU6050 共总线，无冲突） | 原始 IR/RED → `hr_m` | 多数板需上拉电阻改装；固件默认停用（`ENABLE_MAX30100 0`） |
-| 主控 | ESP32 Type-C 开发板 x1 | USB Type-C | — | — |
+| 主控 | ESP32-WROOM-32 开发板（micro-USB，CH340）x1 | USB micro-B | — | — |
 | 佩戴 | 绑带/指套固定件 | — | — | PulseSensor 指尖贴合力度是信号质量的最大变因 |
 
 **统一心率**：固件按 **ECG > PPG > MAX30100** 优先级融合出 `hr` ——静息/校准段用最准的 ECG；游玩时按键肌电干扰 ECG，自动回落到 PulseSensor。
@@ -203,7 +203,7 @@ ESP32 ──┬── I2C (GPIO21/22) ──┬── MPU6050  @0x68
         │                     └── MAX30100 @0x57 (选配, 默认停用)
         ├── ADC1: GPIO34←GSR   GPIO35←PulseSensor   GPIO32←AD8232
         ├── 数字: GPIO27/14 ← AD8232 LO+/LO-
-        └── USB Type-C ──→ 电脑 (串口 115200, NDJSON)
+        └── USB micro-B ──→ 电脑 (串口 115200, NDJSON)
 
 供电：所有传感器统一 3V3（GSR 严禁 5V）、共地
 ```

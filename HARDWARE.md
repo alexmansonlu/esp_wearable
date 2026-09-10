@@ -2,7 +2,9 @@
 
 > 本文档介绍项目已采购的全部硬件：每个元件是什么、工作原理、怎么接线、输出什么数据、以及这些数据在我们的系统里扮演什么角色。
 > 配套架构见 [ARCHITECTURE.md](ARCHITECTURE.md)，数据采集固件见 [firmware/](firmware/)。
-> 文档版本：v1.2
+> 文档版本：v1.3
+>
+> **v1.3 变更（2026-09-07，按厂商资料实物核对）**：① 皮肤电模块确认为**思知瑞 GSR 模块**（3 针 `GND/VCC/ADC`，指套走 3.5mm 插孔），不是 Grove GSR，**板上没有电位器**；② ESP32 实物为 **micro-USB（CH340）版**，引脚与 Type-C 版相同；③ 各节补充厂商资料链接与本地副本路径（见 0.1 节）；④ AD8232 补充思知瑞线色与"R 峰向下就对调红绿电极"；⑤ 面包板/杜邦线已购。上机步骤与检查标准见 [WIRING.md](WIRING.md)。
 >
 > **v1.2 变更**：移除 Gravity MAX30102（SEN0518）与 Gravity LIS2DH（SEN0224）；运动传感器改为 **MPU6050**。
 > 影响：① 心率不再依赖板载算法黑盒，改由 PulseSensor/AD8232 波形逐跳算出——**4 秒延迟问题消失，HRV 主线可用**；② SEN0518 退场后 I2C 上 0x57 地址冲突消失，**单条 I2C 总线即可**；③ 失去 SpO2 佩戴质量检测，改用「心搏新鲜度」判断信号质量；④ PPG 波形检测对运动更敏感，MPU6050 运动门控的重要性上升。
@@ -13,22 +15,35 @@
 
 | # | 元件 | 接口 | 测量对象 | 在系统中的角色 |
 |---|---|---|---|---|
-| 1 | ESP32 Type-C 开发板 | USB Type-C | — | 主控：采集、心跳检测、特征计算、JSON 输出 |
-| 2 | Grove GSR 皮肤电 | 模拟 → GPIO34 | 皮肤电导（出汗） | **快速情绪通道**：秒级紧张/唤醒反应，主力实时信号 |
+| 1 | ESP32-WROOM-32 开发板（micro-USB，CH340） | USB micro-B | — | 主控：采集、心跳检测、特征计算、JSON 输出 |
+| 2 | 思知瑞 GSR 皮肤电模块 | 模拟 → GPIO34 | 皮肤电导（出汗） | **快速情绪通道**：秒级紧张/唤醒反应，主力实时信号 |
 | 3 | PulseSensor 光电脉搏 | 模拟 → GPIO35 | PPG 脉搏波形 | **主力心率来源**：逐跳 HR + 轻量 HRV（游戏实时用） |
 | 4 | AD8232 心电模块 | 模拟 → GPIO32（+ LO± → GPIO27/14） | ECG 心电波形 | **HRV 金标准**：毫秒级逐跳间隔 → RMSSD 真值；校准段/实验段使用 |
 | 5 | MPU6050 六轴传感器 | I2C `0x68` | 三轴加速度（+陀螺仪，暂不用） | **裁判**：检测手部大动作，标记数据不可信时段 |
 | 6 | 裸 MAX30100 | I2C `0x57`（**默认停用**） | 原始 IR/RED PPG | 备用/对比实验；多数板需改上拉电阻（见第 6 节） |
 
 > ⚠️ **两个命名澄清**：
-> 1. Grove GSR 的 A0 输出**不是心率波形**，而是**皮肤电导**（EDA）——反映手指微出汗程度，是情绪唤醒指标。
+> 1. GSR 模块的 ADC 输出**不是心率波形**，而是**皮肤电导**（EDA）——反映手指微出汗程度，是情绪唤醒指标。
 > 2. PulseSensor 电商标题常写「心电脉搏」，但它是**光电（PPG）**传感器，测指尖血容量脉动；真正的**心电（ECG）**是 AD8232（测心脏电信号）。两者波形来源完全不同，正好可以对比教学。
+
+### 0.1 厂商资料与本地副本
+
+所有已下载的资料在 [docs/datasheets/](docs/datasheets/)，语雀页面正文已抽成 md 存在各子目录；语雀附件（标 🔒）需浏览器登录语雀后手动下载。
+
+| 元件 | 厂商资料页 | 本地副本 |
+|---|---|---|
+| ESP32-WROOM-32 开发板 | [芯路城 资料 #208（CH340 版）](https://www.xinlucity.com/?s=resourcedetail/index/id/208.html) | `docs/datasheets/esp32_wroom32_ch340/`：开发板原理图、尺寸图、Arduino IDE 教程、CH340 驱动、乐鑫 ESP32 中文 datasheet / 管脚清单 / 硬件设计指南、27 个例程 |
+| 思知瑞 GSR 皮肤电 | [皮肤电传感器 V1 目录](https://sichiray-tech.yuque.com/dm0eyv/chanpin/gycc5ygqziexfd4w) → [GSR Arduino 开发套件](https://sichiray-tech.yuque.com/dm0eyv/chanpin/iqepdr0qglekrtc3)；[皮肤电传感器 V2（电池版，含技术指标）](https://sichiray-tech.yuque.com/dm0eyv/chanpin/hph28l4g42kfn85i) | `docs/datasheets/gsr/`：实物引脚图、套件接线图、正常/受干扰波形图、两页正文 md |
+| PulseSensor | [Pulsesensor 目录](https://sichiray-tech.yuque.com/dm0eyv/chanpin/alqll38tb7c8hdni) → [详细页](https://sichiray-tech.yuque.com/dm0eyv/chanpin/sonzrn48r5gn29pa)；[官方开源库](https://github.com/WorldFamousElectronics/PulseSensorPlayground) | `docs/datasheets/pulsesensor/`：引脚图、正文 md、官方库说明。🔒 原理图 PDF、说明书 PDF、示例 rar |
+| AD8232 心电 | [AD8232 目录](https://sichiray-tech.yuque.com/dm0eyv/chanpin/pt3n3rd8w0bkh3c3) → [Arduino 开发套件](https://sichiray-tech.yuque.com/dm0eyv/chanpin/xcc21h2u7ps3dird)；[心电传感器作用原理](https://sichiray-tech.yuque.com/dm0eyv/chanpin/apoy60ln3miyh9n7)；[ADI 官方 datasheet](https://www.analog.com/media/en/technical-documentation/data-sheets/ad8232.pdf) | `docs/datasheets/ad8232/`：模块原理图、电极贴位置图、ADI datasheet、正文 md。🔒 中文芯片手册、Arduino 接线图 PDF、单模块说明书 PDF |
+| MPU6050 | [TDK InvenSense 产品页](https://invensense.tdk.com/products/motion-tracking/6-axis/mpu-6050/)（datasheet + 寄存器手册） | 未下载（固件内置最小驱动，不需要） |
+| 思知瑞入口 | [新手必读教程](https://sichiray-tech.yuque.com/dm0eyv/chanpin/wn9c4sg326cpdukb)（Arduino IDE / 驱动 / 电极原理） | — |
 
 **心率策略（v1.2）**：固件同时跑 PulseSensor 与 AD8232 的波形心跳检测，输出统一心率 `hr`，优先级 **ECG > PPG > MAX30100**——静息/校准段 ECG 最准就用 ECG；游玩时按键肌电会干扰 ECG，`hr` 自动回落到 PulseSensor。三路各自的读数（`hr_e` / `hr_p` / `hr_m`）也都单独记录，供赛后互相校验。
 
 ---
 
-## 1. ESP32 Type-C 开发板（主控）
+## 1. ESP32-WROOM-32 开发板（micro-USB 版，主控）
 
 ### 是什么
 一块带 Wi-Fi 和蓝牙的微控制器开发板，本项目的「大脑」。所有传感器接在它上面，它负责采集波形、实时检测心跳、计算特征，再通过 USB 串口（或未来的 Wi-Fi UDP）把数据以 JSON 格式发给电脑。
@@ -40,19 +55,23 @@
 | 工作电压 | 3.3V（USB 5V 输入，板载稳压） | **所有传感器统一从 3V3 引脚取电** |
 | ADC | 12-bit，ADC1（GPIO32–39）+ ADC2 | 三路模拟传感器全接 **ADC1**——ADC2 在 Wi-Fi 开启时不可用 |
 | I2C | GPIO21/22（可自定义） | MPU6050（0x68）+ MAX30100（0x57，选配）共挂一条总线，无地址冲突 |
-| 接口 | USB Type-C | 供电 + 烧录 + 串口传输三合一 |
+| 接口 | USB micro-B（板载 CH340 串口芯片） | 供电 + 烧录 + 串口传输三合一；与 Type-C 版引脚编号完全相同，固件 `board = esp32dev` 通用 |
 
 ### 使用注意
 - ADC 输入上限 **3.3V**，超过会损伤引脚——GSR 必须用 3.3V 供电。
-- 第一次连电脑需装 USB 驱动（CH340 或 CP210x，看板载串口芯片丝印）。
-- 烧录失败时按住 BOOT 键再点烧录（部分板子需要）。
+- 第一次连电脑需装 USB 驱动（CH340 或 CP210x，看板载串口芯片丝印；CH340 驱动在 `docs/datasheets/esp32_wroom32_ch340/extracted/03-开发工具/CH340驱动/`）。macOS 12+ 通常免驱，串口名 `/dev/cu.usbserial-xxxx`。
+- **micro-USB 线必须是数据线**——纯充电线插上灯亮但电脑不识别，是"找不到串口"的头号原因。
+- 烧录卡在 `Connecting...` 时按住 BOOT 键不放直到开始写入。
+- **面包板宽度**：38 针版两排排针间距 25.3mm（约 1 英寸），插不进单块标准面包板。推荐 ESP32 不上面包板，用母对公杜邦线引出；详见 [WIRING.md](WIRING.md) §2.3。
 
 ---
 
-## 2. Grove GSR 皮肤电传感器
+## 2. 思知瑞 GSR 皮肤电模块
 
 ### 是什么
 测量皮肤电导（GSR / EDA）的模拟传感器，配两个指部绑带电极。**整个项目里最直接反映"紧张程度"的传感器，系统的主力实时信号。**
+
+实物是思知瑞（无锡思知瑞科技，淘宝"大脑实验室"）的 3 针模块（丝印 `GND / VCC / ADC`，旧批次为 `GND / VCC / OUT`），指套电极通过板上 **3.5mm 插孔**连接；电池款另有 `BAT+/BAT-` 焊盘，用 ESP32 供电时悬空。厂商标称 3.3V/5V 双模式、内部 2 倍放大、0.5–5Hz 带通滤波。**不是 Grove GSR，板上没有电位器。**
 
 ### 工作原理：情绪性出汗
 ```
@@ -62,7 +81,7 @@
         ↓
    汗液含电解质 → 皮肤导电性上升
         ↓
-   指环电极间测量电导变化 → A0 输出电压 → ESP32 ADC
+   指环电极间测量电导变化 → 模块 ADC 引脚输出电压 → ESP32 GPIO34
 ```
 汗腺**只受交感神经支配**（无副交感拮抗），所以 GSR 是心理学公认最"干净"的唤醒度指标——测谎仪的核心传感器。情绪刺激后 **1–3 秒**内可见反应。
 
@@ -71,11 +90,14 @@
 |---|---|---|
 | VCC | **3V3（不要接 5V！）** | 5V 供电时输出可能超过 ADC 的 3.3V 上限 |
 | GND | GND | |
-| SIG (A0) | **GPIO34** | ADC1_CH6，纯输入引脚 |
+| ADC（旧批次丝印 OUT） | **GPIO34** | ADC1_CH6，纯输入引脚 |
 
+- 指套线插进模块 3.5mm 插孔时**要用力插到底**（厂商特别强调，没插紧读值会顶格或乱跳）。
 - 电极佩戴：两个指环套在**同一只手的食指与中指**第二指节。
 - **建议戴在不按键的那只手**，否则按键动作引入伪影。
-- 板上电位器可调基准，首次使用时空载调到输出约在量程中点。
+- 没有电位器，不需要也无法"调基准"；基线全靠固件 30 秒静息校准（`calibrate` 指令）。
+- 厂商电压换算：读数 ÷ ADC 满量程 × 参考电压 ÷ 2（2 倍放大）。3.3V 供电时输出可能接近满量程，固件 `quality` bit1 会标记超量程。
+- 资料：[GSR Arduino 开发套件页](https://sichiray-tech.yuque.com/dm0eyv/chanpin/iqepdr0qglekrtc3)、[V2 技术指标页](https://sichiray-tech.yuque.com/dm0eyv/chanpin/hph28l4g42kfn85i)；实物图 `docs/datasheets/gsr/V2_产品图.png`，正常/受干扰波形对照 `docs/datasheets/gsr/V2_正常波形1.png`、`V2_电源干扰波形.png`。
 
 ### 这些数值如何帮助我们的系统
 
@@ -115,6 +137,9 @@
 | -（黑） | GND | |
 | S（紫） | **GPIO35**（ADC1_CH7） | 模拟 PPG 波形 |
 
+厂商规格：板径 16mm，LED 峰值波长 515nm（绿光），供电 3.3–5.5V，输出模拟信号 0–3.0V（3.3V 供电时）。引脚图 `docs/datasheets/pulsesensor/引脚说明.png`，资料页 [思知瑞 Pulsesensor](https://sichiray-tech.yuque.com/dm0eyv/chanpin/sonzrn48r5gn29pa)。
+
+- 背面元件裸露，**贴一小块胶带绝缘**，别让背面碰到面包板金属或汗液。
 - 佩戴：指尖（配防滑贴/魔术贴）或耳垂夹，**戴在非按键手**。
 - 力度关键：太紧压闭血管没信号，太松漏光噪声大——「轻贴」最好。
 
@@ -148,11 +173,25 @@
 | OUTPUT | **GPIO32**（ADC1_CH4） | 模拟心电波形 |
 | LO+ | **GPIO27** | 导联脱落检测（电极掉了输出高电平） |
 | LO- | **GPIO14** | 同上 |
-| SDN | 不接（或接 3V3） | 关断控制，悬空即常开 |
+| SDN | 不接 | 关断控制；思知瑞模块上已用 10kΩ 上拉到 3.3V，悬空即常开 |
+
+模块原理图 `docs/datasheets/ad8232/AD8232模块原理图.jpeg`（JP3 六针顺序 GND / 3.3V / OUTPUT / LO- / LO+ / SDN；JP2 为 3.5mm 三芯电极插孔；D1 红灯随心跳闪烁）。资料页 [思知瑞 AD8232 Arduino 开发套件](https://sichiray-tech.yuque.com/dm0eyv/chanpin/xcc21h2u7ps3dird)，芯片手册 `docs/datasheets/ad8232/AD8232_datasheet_ADI.pdf`。
 
 **电极贴法**（两种都可以，采集时选一种并记录在 meta 里）：
 - 胸贴法（信号最好）：RA 右锁骨下、LA 左锁骨下、RL 右下腹
 - 手臂法（方便）：RA 右前臂内侧、LA 左前臂内侧、RL 任一手腕外侧——**游玩中按键会引入肌电噪声**，所以 ECG 主要用于静息校准段与实验采集段
+
+**思知瑞电极线线色**（以随货说明为准；图 `docs/datasheets/ad8232/电极贴位置.png`）：
+
+| 线色 | 位置 | 对应 |
+|---|---|---|
+| 红 | 右胸 | RA |
+| 绿 | 左胸 | LA |
+| 橙/黄 | 右下腹 | RL（参考） |
+
+- 固件的心跳检测只认**向上的 R 峰**。若波形 R 峰向下、`hr_e` 一直 -1 或读出两倍心率（锁到 T 波），**把红、绿两个电极对调**即可，不用改代码。
+- 做 ECG 时**拔掉笔记本充电器用电池运行**：厂商 FAQ 第一条，隔绝 50Hz 工频干扰；身上贴着电极时也不宜连市电。
+- 电极贴片贴过一次就退化，每人每次用新片；皮肤先酒精棉片擦拭。
 
 ### 这些数值如何帮助我们的系统
 
@@ -239,7 +278,7 @@ VIN→3V3，GND→GND，SDA→GPIO21，SCL→GPIO22（与 MPU6050 共总线，�
 | GPIO21 | I2C SDA：MPU6050（0x68）+ MAX30100（0x57，选配） | 数字 |
 | GPIO22 | I2C SCL | 数字 |
 | GPIO32 | AD8232 OUTPUT（心电波形） | ADC1 |
-| GPIO34 | Grove GSR SIG | ADC1（纯输入） |
+| GPIO34 | 思知瑞 GSR ADC | ADC1（纯输入） |
 | GPIO35 | PulseSensor S | ADC1（纯输入） |
 | GPIO27 | AD8232 LO+（导联脱落） | 数字输入 |
 | GPIO14 | AD8232 LO-（导联脱落） | 数字输入 |
@@ -253,7 +292,7 @@ ESP32 ──┬── I2C (GPIO21/22) ──┬── MPU6050  @0x68
         ├── ADC1: GPIO34 ← GSR    GPIO35 ← PulseSensor    GPIO32 ← AD8232
         ├── 数字: GPIO27/14 ← AD8232 LO+/LO-
         │
-        └── USB Type-C ──→ 电脑 (串口 115200, NDJSON)
+        └── USB micro-B (CH340) ──→ 电脑 (串口 115200, NDJSON)
 
 供电：所有传感器统一 3V3、共地（后续如加 OLED 0x3C 直接挂同一 I2C）
 ```
@@ -272,7 +311,7 @@ ESP32 ──┬── I2C (GPIO21/22) ──┬── MPU6050  @0x68
 ## 8. 数据 → 系统的完整映射
 
 ```
-Grove GSR   ──→ 电导 (50Hz)    ──→ gsr_delta        ──→ ★ 快速唤醒水平（每条规则都用）
+思知瑞 GSR  ──→ 电导 (50Hz)    ──→ gsr_delta        ──→ ★ 快速唤醒水平（每条规则都用）
                                ──→ gsr_slope        ──→ ★ "正在紧张起来"触发器
 PulseSensor ──→ PPG波形(200Hz) ──→ hr_p, rmssd_p    ──→ 实时心率主力 + 轻量HRV
 AD8232      ──→ ECG波形(200Hz) ──→ hr_e, rmssd_e    ──→ 心率/HRV 金标准（静息段）
@@ -299,7 +338,7 @@ MPU6050     ──→ 加速度(25Hz)   ──→ acc              ──→ 运
 | 元件 | 用途 | 参考价 |
 |---|---|---|
 | **一次性心电贴片电极（50 片装）** | AD8232 耗材，每人每次 3 片，10 人次采集要 30+ 片 | ¥15–25 |
-| 面包板 + 杜邦线（公母/母母各一把） | 原型接线 | ¥15–25 |
+| ~~面包板 + 杜邦线（公母/母母各一把）~~ ✅ 已购 | 原型接线 | ¥15–25 |
 | 魔术贴绑带 / 医用胶带 | 固定 PulseSensor 于指尖、走线固定 | ¥10 |
 | 备用 GSR 指环电极（2–3 对） | 电极汗渍老化后更换 | ¥10–20 |
 | 酒精棉片 | 每位受试者使用前清洁电极和皮肤 | ¥5 |
@@ -326,9 +365,9 @@ MPU6050     ──→ 加速度(25Hz)   ──→ acc              ──→ 运
 
 ## 10. 上电自检清单（P0 硬件验收用）
 
-按顺序执行，全部通过才算硬件就绪（对应 [firmware/](firmware/) 固件与 `tools/serial_logger.py`）：
+按顺序执行，全部通过才算硬件就绪（对应 [firmware/](firmware/) 固件与 `tools/serial_logger.py`；每一步的详细操作与"通过标准"见 [WIRING.md](WIRING.md) §5）：
 
-1. [ ] ESP32 接电脑，设备管理器出现 COM 口，烧录 Blink 成功
+1. [ ] ESP32 用 **micro-USB 数据线**接电脑，设备管理器出现 COM 口（macOS 为 `/dev/cu.usbserial-*`），烧录 Blink 成功
 2. [ ] 按第 7 节接线（**GSR 接 3.3V**；MPU6050 挂 GPIO21/22）
 3. [ ] 烧录本项目固件，boot 行显示 `"mpu6050":1`
 4. [ ] GSR：空载读值稳定；戴上电极读值变化；心算/憋气 10 秒能看到 `gsr` 爬升

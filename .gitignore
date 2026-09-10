@@ -20,3 +20,15 @@ Recordings/
 Thumbs.db
 .DS_Store
 ~$*.docx
+
+# 厂商资料：只入库小文件（原理图/引脚图/正文 md/关键 pdf），大包与安装程序不入库
+docs.zip
+docs/datasheets/**/*.zip
+docs/datasheets/**/*.rar
+docs/datasheets/**/*.exe
+docs/datasheets/esp32_wroom32_ch340/extracted/03-开发工具/
+
+# docs/*.md 是转 PDF 用的根目录文档副本（与原文件相同），不入库；docs/pdf/ 入库
+docs/*.md
+docs/datasheets/**/*.apk
+docs/datasheets/esp32_wroom32_ch340/extracted/04-ESP32芯片相关资料/ESP32 AT指令集.pdf

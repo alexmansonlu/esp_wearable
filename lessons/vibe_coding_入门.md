@@ -19,13 +19,18 @@
 
 一句话：**vibe coding ≠ 不用懂代码，而是换了一种懂代码的方式**——从"会写"变成"会读、会问、会判断"。
 
-## 2. 装机清单（L0 课上一起装，装不完课后远程协助）
+## 2. 装机清单（L1 线下课前装好即可，L1 现场一起开箱；装不动没关系，课上装）
+
+> L0 阶段你只需要一个**能对话、能上传文件的 AI 助手**（Claude 或 ChatGPT 网页版都行）——用来学硬件、写游戏提案，还不用写代码。下面的 VSCode / Codex / git 是 L1 起才用。
 
 1. **VSCode**：https://code.visualstudio.com/ （代码编辑器，免费）
-2. **AI 编程助手**（老师会帮你选定其一并处理账号）：
-   - 推荐：**Claude Code**（VSCode 扩展市场搜 "Claude Code" 安装，或官方文档 https://code.claude.com/docs）——本项目的文档记忆（CLAUDE.md）就是为它准备的，AI 打开项目就知道全部背景
-   - 备选：Cursor（https://cursor.com，内置 AI 的编辑器）
-3. **验收标准**：打开本项目文件夹 → 对 AI 说"请读一下这个项目的 CLAUDE.md，用三句话告诉我这个项目在做什么"→ 它答对了，装机完成 ✅
+2. **AI 编程助手：Codex（OpenAI）的 VSCode 扩展**
+   - 安装：VSCode 左侧"扩展"图标 → 搜 "Codex"（发布者 OpenAI，扩展名 "Codex – OpenAI's coding agent"）→ Install → 左侧栏出现 Codex 图标 → 点开 → "Sign in with ChatGPT"，用你的 ChatGPT 账号登录（Plus / Pro / Business / Edu 都可以）
+   - 官方文档：https://developers.openai.com/codex/ide
+   - 它和 ChatGPT 网页版的区别：它能**看到你打开的项目文件夹里的所有文件、能改文件、能帮你跑命令**。本项目根目录有一份给它看的说明书（`AGENTS.md` → `CLAUDE.md`），它一打开项目就知道全部背景
+   - 老师自己用的是 Claude Code，两者用法一样，课上的提示词你直接照用
+3. **验收标准**（L1 现场做）：git clone 本项目后在 VSCode 打开 → 对 AI 说"请读一下这个项目的 CLAUDE.md，用三句话告诉我这个项目在做什么"→ 它答对了，装机完成 ✅
+4. **L1 的开箱练习**：老师**只给你仓库地址**，不讲课——你要靠问 AI 搞懂这个仓库是什么、GSR 接哪个脚、ESP32 发来的数据长什么样，并让 AI 帮你跑第一个脚本、做第一次提交。这是你第一次真正的 vibe coding，提前把 §3 的五个基本功看熟
 
 ## 3. 五个基本功（每次对话都用得上）
 
@@ -64,7 +69,7 @@
 - "数据从传感器到画面上，经过了哪几站？"
 - "如果 XX 坏了/断了，程序会怎么表现？"
 
-## 5. Git 基本功（代码的"存档系统"，必学）
+## 5. Git 基本功（代码的"存档系统"，必学——从 L1 起）
 
 ### 为什么必须学
 
@@ -102,10 +107,10 @@ L1（9/11 线下课）我们要一起组装硬件。**开场会有 10 分钟快�
 
 ### 做法
 
-打开项目文件夹，让 AI 读 `HARDWARE.md`，然后**每样硬件走一轮**这个模板：
+把老师发给你的 `HARDWARE.md`（PDF）上传或粘贴给 AI（L0 阶段你还没有项目文件夹，L1 才会 clone），然后**每样硬件走一轮**这个模板：
 
 ```
-「我是零基础学生。请根据本项目的 HARDWARE.md，用初中生能懂的方式给我讲解【ESP32】：
+「我是零基础学生。请根据我上传的 HARDWARE.md，用初中生能懂的方式给我讲解【ESP32】：
  1. 它是什么、在我们项目里负责什么？
  2. 它的工作原理，用一个生活中的比喻来说明
  3. 它输出的数据长什么样、这些数据后面怎么被游戏用到？
@@ -114,13 +119,13 @@ L1（9/11 线下课）我们要一起组装硬件。**开场会有 10 分钟快�
 
 【】里依次换成清单上的 6 样：
 1. ESP32 开发板
-2. Grove GSR 皮肤电传感器
+2. 思知瑞 GSR 皮肤电传感器
 3. PulseSensor 光电脉搏传感器
 4. AD8232 心电模块
 5. MPU6050 六轴传感器
 6. 裸 MAX30100（选配件）
 
-### 交付物（L1 带来）
+### 交付物（L1 前发给老师，Word / markdown 均可；这次不用 git）
 
 每样硬件写 **3–5 行自己话的笔记**（不许复制粘贴 AI 原文——写不出自己话 = 还没懂，回去再问）。格式：
 
@@ -132,6 +137,10 @@ L1（9/11 线下课）我们要一起组装硬件。**开场会有 10 分钟快�
 我还没搞懂的一个问题：____   ← 这条最有价值，课上优先解答
 ```
 
+### 第二份作业：游戏设计提案
+
+老师会发你 L0 导论课材料里的 G1–G5 五个问题（参考游戏、最小机制、按键数、情绪怎么影响难度、奖励与失误反馈）。做法和学硬件一样：把 `GAME_DESIGN.md` 和问题喂给 AI，**每题让 AI 给 2–3 个方案、你来选**，写成每题四行（我选什么 / 我的理由 / AI 给过但我没选的 / 我不确定的），和硬件笔记一起发老师。
+
 ### 快问快答会考的方向（透题了，好好准备）
 
 - 为什么心率传感器有三个？各自什么定位？
@@ -141,10 +150,10 @@ L1（9/11 线下课）我们要一起组装硬件。**开场会有 10 分钟快�
 
 ## 7. 课后学习资源
 
-- **官方文档**：Claude Code 文档 https://code.claude.com/docs （或你用 Cursor 则看 https://docs.cursor.com）
+- **官方文档**：Codex 文档 https://developers.openai.com/codex （IDE 扩展页 https://developers.openai.com/codex/ide）
 - **视频教程**（自己挑 1–2 个 20 分钟以上的完整实战跟看）：
-  - B站搜：`Claude Code 入门`、`Cursor AI 编程 教学`、`vibe coding 教程`、`git 新手 20分钟`
-  - YouTube 搜：`Claude Code tutorial`、`vibe coding for beginners`、`git for beginners`
+  - B站搜：`Codex VSCode 插件 入门`、`OpenAI Codex 教程`、`vibe coding 教程`、`git 新手 20分钟`
+  - YouTube 搜：`OpenAI Codex VS Code extension tutorial`、`vibe coding for beginners`、`git for beginners`
   - 挑选标准：发布时间近半年内（AI 工具更新快）、有完整做出一个小东西的过程
 - 看完后在 AI 里试着复刻视频里的一个小例子——看会 ≠ 会
 

@@ -3,7 +3,7 @@
 // ============================================================
 // 传感器开关：没接的传感器设为 0，固件其余部分照常工作
 // ============================================================
-#define ENABLE_GSR           1   // Grove GSR 皮肤电
+#define ENABLE_GSR           1   // 思知瑞 GSR 皮肤电模块（3 针 GND/VCC/ADC）
 #define ENABLE_PULSESENSOR   1   // PulseSensor 光电脉搏（模拟波形，主力心率来源）
 #define ENABLE_AD8232        1   // AD8232 心电（模拟波形 + 导联脱落检测，HRV 金标准）
 #define ENABLE_MPU6050       1   // MPU6050 六轴（只用加速度做运动门控）
