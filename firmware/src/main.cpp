@@ -275,8 +275,8 @@ void loop() {
              "\"acc\":%.3f,\"quality\":%u,\"fw\":\"%s\"}",
              (unsigned long)g_seq++, (unsigned long)now,
              hr, hrDelta,
-             hrP, g_pulseBeat.rmssd(),
-             hrE, g_ecgBeat.rmssd(), leadOff ? 1 : 0,
+             hrP, hrP > 0 ? g_pulseBeat.rmssd() : -1.0f,   // 来源不新鲜时 RMSSD 也置 -1，避免残留旧值
+             hrE, hrE > 0 ? g_ecgBeat.rmssd() : -1.0f, leadOff ? 1 : 0,
              hrM,
              g_gsrSmoothed, g_gsrRaw, gsrDelta, gsrSlope(),
              g_accMa.mean(), quality, FW_VERSION);

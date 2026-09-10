@@ -2,6 +2,18 @@
 
 本项目版本记录。格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/)。
 
+## [0.0.5] - 2026-09-10 — 上机实测修正
+
+### 修正
+- `firmware/src/main.cpp`：`rmssd_p` / `rmssd_e` 在对应心率来源不新鲜（-1）时也输出 -1，不再残留旧值（实测见 `hr_e:-1` 却 `rmssd_e:437`）；已编译通过，需重新烧录
+- `firmware/tools/sensor_check.py`：上机实测发现偶有缺字段的 bio 行（传输坏行但仍是合法 JSON），汇总时 KeyError 崩溃 → 缺字段的包跳过并计数提示；连接后用 DTR/RTS 主动复位一次以稳定收到 boot 行（`--no-reset` 可保留校准基线）；MPU6050 判定文案补充
+- 三个工具（sensor_check / live_dashboard / serial_logger）改为从行内第一个 `{` 开始解析：ESP32 复位后 `Serial.begin` 常在 boot 行前吐一个乱码字节，原来 `startswith("{")` 会把 boot 行整行丢掉，表现为"按 EN 也未见 boot 行"；sensor_check 加 `--debug` 原样打印非 bio 行、识别 ROM 复位信息
+- `firmware/tools/live_dashboard.py`：同样丢弃缺字段的包
+- L1 §5.0 判定表、firmware/README 排查表补充坏包与 boot 行说明
+
+### 变更
+- `.gitignore`：`experiment/data_gathering/sessions/` 原始数据整体不入库（本地保留）；README 与 L1 交付说明同步
+
 ## [0.0.4] - 2026-09-10 — L1 改版（提案定案 + 采集分析闭环）与 experiment/ 目录
 
 ### 新增

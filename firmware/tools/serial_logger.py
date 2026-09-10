@@ -117,6 +117,9 @@ def main() -> None:
                     n_raw += 1
                 continue
 
+            j = line.find("{")
+            if j > 0:
+                line = line[j:]           # 行首乱码（复位后常见）去掉
             if not line.startswith("{"):
                 log_f.write(f"{host_ts} {line}\n")
                 continue

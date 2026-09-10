@@ -9,10 +9,10 @@ experiment/
 │   ├── record.py                  采集一场：连串口 → 校准 → 记录 → Ctrl+C → 问标签
 │   ├── sessions.csv               每场一行的标签表（游戏 / 难度 / 分数 / 失误 / 主观紧张……）
 │   └── sessions/
-│       └── session_20260911_153000_osu_lv5/     一场 = 一个文件夹（名字就是 session_id）
+│       └── session_20260911_153000_osu_lv5/     一场 = 一个文件夹（名字就是 session_id；整个 sessions/ 不入 git）
 │           ├── bio.csv       10 Hz 特征流（hr / hr_delta / rmssd / gsr_delta / gsr_slope / acc / quality…）
 │           ├── beats.csv     逐跳心搏（src = ecg / ppg，ibi 毫秒）
-│           ├── raw.csv       100 Hz 波形（ECG / PPG / GSR 原始 ADC；不入 git）
+│           ├── raw.csv       100 Hz 波形（ECG / PPG / GSR 原始 ADC）
 │           └── log.txt       boot / calib / 异常行
 ├── analysis/                    ← ② 分析代码（只读 data_gathering/，只写 results/）
 │   ├── common.py                  读取 / 路径 / 画图设置，所有脚本 import 它
@@ -99,5 +99,5 @@ python -c "import serial, pandas, matplotlib, numpy; print('ok')"
 
 ## 入库约定
 
-- `sessions/*/raw.csv` 不入 git（100 Hz 太大；分析用 bio.csv 与 beats.csv 就够）
-- 其余全部 commit：数据、标签、结果图都是作业交付物
+- `data_gathering/sessions/` 里的原始数据**不入 git**（.gitignore 已排除）：留在本地，定期复制到网盘/移动硬盘备份
+- 入 git 的是：`sessions.csv` 标签表、`analysis/` 代码、`results/` 全部产物（汇总表、图、报告）——这些是作业交付物，答辩看这些

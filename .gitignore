@@ -33,7 +33,8 @@ docs/*.md
 docs/datasheets/**/*.apk
 docs/datasheets/esp32_wroom32_ch340/extracted/04-ESP32芯片相关资料/ESP32 AT指令集.pdf
 
-# experiment：100Hz 波形太大不入库；bio/beats/标签/结果全部入库
-experiment/data_gathering/sessions/*/raw.csv
+# experiment：原始 session 数据整体不入库（本地保留、另行备份）；标签表 sessions.csv 与 results/ 入库
+experiment/data_gathering/sessions/*
+!experiment/data_gathering/sessions/.gitkeep
 
 venv/

@@ -77,6 +77,9 @@ class SerialReader(threading.Thread):
                         self.wave_t.append(t); self.wave_ecg.append(e)
                         self.wave_ppg.append(pu); self.wave_gsr.append(g)
                 continue
+            j = line.find("{")
+            if j > 0:
+                line = line[j:]           # 行首乱码（复位后常见）去掉
             if not line.startswith("{"):
                 continue
             try:
@@ -86,6 +89,8 @@ class SerialReader(threading.Thread):
             typ = d.get("type")
             with self.lock:
                 if typ == "bio":
+                    if any(k not in d for k in ("t", "hr", "hr_p", "hr_e", "rmssd_p", "rmssd_e", "gsr", "acc", "quality")):
+                        continue   # 传输坏行：缺字段的包丢弃，避免画图时 KeyError
                     self.trend.append(d); self.last_bio = d; self.n_bio += 1
                     now = time.time()
                     if now - self.t_rate >= 2:

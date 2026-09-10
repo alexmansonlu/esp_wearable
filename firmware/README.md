@@ -25,7 +25,7 @@
 5. 上机自检与实时看图（先关闭 Serial Monitor 释放串口；macOS 串口名形如 `/dev/cu.usbserial-1210`）：
    ```bash
    pip install -r ../requirements.txt     # 建议先在仓库根目录建 venv，见 experiment/README.md
-   python tools/sensor_check.py --port COM5            # 15 秒后给出每个传感器 ✅/❌ 判定
+   python tools/sensor_check.py --port COM5            # 15 秒后给出每个传感器 ✅/❌ 判定；连上时会复位板子一次（--no-reset 可保留校准基线）
    python tools/live_dashboard.py --port COM5          # 实时波形与趋势窗口；--snapshot x.png 可无窗口存图
    ```
 6. 记录数据集（另开终端，关闭 Serial Monitor 以释放串口）。**正式采集请用 `experiment/data_gathering/record.py`**（它调用本脚本，固定输出到 experiment/ 并自动打标签，见 experiment/README.md）；直接用本脚本仅供调试：
@@ -97,3 +97,5 @@ firmware/
 | MAX30100 启用后 begin 失败 | 上拉电阻问题，见 HARDWARE.md 的改装说明 |
 | `rmssd_*` 一直 -1 | 需要连续约 30 秒稳定心搏才开始输出；先确认 beat 事件流稳定 |
 | ESP32 反复重启 | USB 供电不足（换线/换口）；I2C 短路检查 |
+| 工具报 "坏包" / 偶发 KeyError | 串口传输偶有坏行（字段缺失但仍是合法 JSON），工具已自动跳过；持续出现换 USB 线/口 |
+| 没看到 boot 行 | 板子没复位：用 pyserial 打开串口不一定会触发复位。sensor_check 会主动复位；其他工具按板上 EN 键即可重印 boot 行（同时清掉校准基线） |
